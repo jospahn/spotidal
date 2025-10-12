@@ -68,11 +68,7 @@ public class SpotifyAuthService {
             log.info("  Access Token expires in: " + credentials.getExpiresIn() + " seconds");
 
             return Optional.of(newToken);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (SpotifyWebApiException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
             throw new RuntimeException(e);
         }
     }
@@ -82,17 +78,14 @@ public class SpotifyAuthService {
      */
     public Optional<Token> authenticate()  {
 
-        try {
-            var server = new CallbackServer(redirectUri);
+        try (var server = new CallbackServer(redirectUri)){
+
             var authCodeFuture = server.start();
             openAuthUrlInBrowser();
 
             // 3. Warten auf Callback (blockierend)
             log.info("⏳ Warte auf Authentifizierung im Browser...");
             String authCode = authCodeFuture.get(); // Blockiert bis Code empfangen
-
-            // 4. Server stoppen
-            server.stop();
 
             // 5. Access Token holen
             AuthorizationCodeCredentials credentials = exchangeCodeForToken(authCode);
@@ -113,15 +106,6 @@ public class SpotifyAuthService {
             return Optional.empty();
         }
     }
-
-    /**
-     * Extrahiert Port aus URI
-     */
-    private int extractPort(URI uri) {
-        int port = uri.getPort();
-        return port != -1 ? port : 8888;
-    }
-
 
     /**
      * Öffnet die Spotify Auth-URL im Standard-Browser

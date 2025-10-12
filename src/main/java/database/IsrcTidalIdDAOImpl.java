@@ -106,7 +106,7 @@ public class IsrcTidalIdDAOImpl extends AbstracDatabaseDAO implements IsrcTidalI
                 LIMIT ?;
                 """;
         List<IsrcTidalId> result = new ArrayList<>();
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+        try (PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
                 stmt.setInt(1, count);
                 ResultSet rs = stmt.executeQuery();

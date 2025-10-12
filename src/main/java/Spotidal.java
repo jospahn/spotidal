@@ -32,7 +32,7 @@ public class Spotidal implements Callable<Integer> {
     }
 
     @Command(name = "test")
-    int test() throws SQLException {
+    int test()  {
         log.info("test called");
 
         IsrcTidalIdDAO dao = daoProvider.getIsrcTidalIdDAO();
@@ -65,7 +65,7 @@ public class Spotidal implements Callable<Integer> {
         }
 
         if (updateIsrc) {
-            log.info("Updating enries in the isrc<->tidalId table with tidal track ids");
+            log.info("Updating entries in the isrc<->tidalId table with tidal track ids");
             tidal.updateIsrcTidalIds();
         }
 

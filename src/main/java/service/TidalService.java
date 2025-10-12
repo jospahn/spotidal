@@ -6,9 +6,7 @@ import model.IsrcTidalId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class TidalService {
     private static final Logger log = LoggerFactory.getLogger(TidalService.class);
@@ -25,9 +23,8 @@ public class TidalService {
         isrcTidalIdDAO.createTable();
     }
 
-    public int addIsrcToIsrcTidalIds(List<String> isrcs) {
+    public void addIsrcToIsrcTidalIds(List<String> isrcs) {
         isrcTidalIdDAO.addAllIsrc(isrcs);
-        return isrcTidalIdDAO.count();
     }
 
     public void updateIsrcTidalIds() {
