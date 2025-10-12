@@ -1,6 +1,6 @@
 package auth;
 
-import model.MusicService;
+import model.MusicPlatform;
 import model.Token;
 import org.apache.hc.core5.http.ParseException;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ public class SpotifyAuthService {
     public static final Logger log = LoggerFactory.getLogger(SpotifyAuthService.class.getName());
     private final URI redirectUri;
     private final SpotifyApi spotifyApi;
-    private final TokenStorage storage = new TokenStorage(MusicService.SPOTIFY);
+    private final TokenStorage storage = new TokenStorage(MusicPlatform.SPOTIFY);
 
     public SpotifyAuthService() {
         var authProperties = AuthPropertyLoader.loadProperties("spotify").orElseThrow();

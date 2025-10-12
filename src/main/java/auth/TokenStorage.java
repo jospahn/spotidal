@@ -2,7 +2,7 @@ package auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import model.MusicService;
+import model.MusicPlatform;
 import model.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class TokenStorage {
                 .enable(SerializationFeature.INDENT_OUTPUT);
     }
 
-    public TokenStorage(MusicService service) {
+    public TokenStorage(MusicPlatform service) {
         var fileName = service.name().toLowerCase() + "-tokens.json";
         this(Path.of(System.getProperty("user.home") + "/.spotidal/" + fileName));
     }

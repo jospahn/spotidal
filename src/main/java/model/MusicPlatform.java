@@ -1,5 +1,5 @@
 package model;
 
-public enum MusicService {
+public enum MusicPlatform {
     SPOTIFY, TIDAL
 }

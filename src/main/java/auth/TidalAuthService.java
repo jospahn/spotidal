@@ -2,7 +2,7 @@ package auth;
 
 import com.google.gson.GsonBuilder;
 import model.AuthProperties;
-import model.MusicService;
+import model.MusicPlatform;
 import model.tidal.TidalTokenResponse;
 import model.Token;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class TidalAuthService {
 
     public TidalAuthService() {
         this.authProperties = AuthPropertyLoader.loadProperties("tidal").orElseThrow();
-        this.storage = new TokenStorage(MusicService.TIDAL);
+        this.storage = new TokenStorage(MusicPlatform.TIDAL);
     }
 
     public Optional<Token> checkAndRefresh() {

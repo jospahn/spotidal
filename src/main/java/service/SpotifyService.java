@@ -1,10 +1,9 @@
 package service;
 
 import auth.SpotifyAuthService;
-import model.ExportData;
-import model.Token;
-import model.Track;
+import model.*;
 import model.Playlist;
+import model.Track;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.model_objects.specification.*;
 import se.michaelthelin.spotify.requests.data.library.GetUsersSavedTracksRequest;
@@ -15,7 +14,6 @@ import com.google.gson.GsonBuilder;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class SpotifyService {
@@ -120,7 +118,7 @@ public class SpotifyService {
         saveToFile(exportData, outputFile);
     }
 
-    private List<Track> loadAllLikedSongs() throws Exception {
+    public List<Track> loadAllLikedSongs() throws Exception {
         List<Track> tracks = new ArrayList<>();
         int offset = 0;
         int limit = 50;
@@ -150,7 +148,7 @@ public class SpotifyService {
         return tracks;
     }
 
-    private List<Playlist> loadAllPlaylists() throws Exception {
+    public List<Playlist> loadAllPlaylists() throws Exception {
         List<Playlist> playlists = new ArrayList<>();
         int offset = 0;
         int limit = 50;
@@ -183,36 +181,36 @@ public class SpotifyService {
         se.michaelthelin.spotify.model_objects.specification.Playlist spotifyPlaylist =
                 spotifyApi.getPlaylist(playlistId).build().execute();
 
-        Playlist playlist = new Playlist();
-        playlist.setName(spotifyPlaylist.getName());
-        playlist.setDescription(spotifyPlaylist.getDescription());
-        playlist.setPublic(spotifyPlaylist.getIsPublicAccess());
-
         List<Track> tracks = new ArrayList<>();
         for (PlaylistTrack pt : spotifyPlaylist.getTracks().getItems()) {
             if (pt.getTrack() instanceof se.michaelthelin.spotify.model_objects.specification.Track) {
                 tracks.add(convertTrack((se.michaelthelin.spotify.model_objects.specification.Track) pt.getTrack()));
             }
         }
-        playlist.setTracks(tracks);
 
-        return playlist;
+        return new Playlist(
+                spotifyPlaylist.getName(),
+                spotifyPlaylist.getDescription(),
+                spotifyPlaylist.getIsPublicAccess(),
+                tracks
+        );
     }
 
     private Track convertTrack(se.michaelthelin.spotify.model_objects.specification.Track spotifyTrack) {
-        Track track = new Track();
-        track.setName(spotifyTrack.getName());
-        track.setIsrc(spotifyTrack.getExternalIds().getExternalIds().get("isrc"));
-        track.setDurationMs(spotifyTrack.getDurationMs());
 
         List<String> artists = new ArrayList<>();
         for (ArtistSimplified artist : spotifyTrack.getArtists()) {
             artists.add(artist.getName());
         }
-        track.setArtists(artists);
-        track.setAlbum(spotifyTrack.getAlbum().getName());
 
-        return track;
+        return new Track(
+                spotifyTrack.getName(),
+                artists,
+                spotifyTrack.getAlbum().getName(),
+                spotifyTrack.getExternalIds().getExternalIds().get("isrc"),
+                spotifyTrack.getDurationMs()
+        );
+
     }
 
     private void saveToFile(ExportData data, String filename) throws IOException {

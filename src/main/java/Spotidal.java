@@ -1,14 +1,20 @@
 import auth.SpotifyAuthService;
 import auth.TidalAuthService;
+import dao.IsrcTidalIdDAO;
+import database.DaoProvider;
+import model.Track;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import service.TidalService;
+import service.LocalDataService;
+import service.TidalApiService;
 import service.SpotifyService;
+import service.TidalService;
 
+import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 @Command(
@@ -19,30 +25,63 @@ import java.util.concurrent.Callable;
 )
 public class Spotidal implements Callable<Integer> {
     private static final Logger log = LoggerFactory.getLogger(Spotidal.class);
+    private final DaoProvider daoProvider;
 
+    Spotidal() throws SQLException {
+        this.daoProvider = new DaoProvider("spotidal.db");
+    }
 
     @Command(name = "test")
-    int test() {
+    int test() throws SQLException {
         log.info("test called");
 
+        IsrcTidalIdDAO dao = daoProvider.getIsrcTidalIdDAO();
+        var count = dao.count();
+        log.info("Anzahl der Isrcs: {}", count);
+        var list = dao.findUpdateNeeded(20);
 
-        var tidal = new TidalService();
-        var id = tidal.getTrackIdByIsrc("GBN9Y1100088");
-
-        id.ifPresent(System.out::println);
-
-        var d = tidal.getUserCollection();
-        d.forEach(System.out::println);
+        for (var isrcTidalId : list) {
+            log.info("{}", isrcTidalId);
+        }
 
         return 0;
     }
 
+    @Command(name = "migrate", description = "Migriert Playlists und Liked Songs von Spotify zu Tidal")
+    int migrate(
+            @Option(names = {"-t", "--add-track-isrc"},
+                    description = "Übertrage tracks in die lokale isrc liste",
+                    defaultValue = "false") boolean addTrackIsrc,
+            @Option(names = {"-u", "--update-isrc"},
+                    description = "Lade tidal track ids in die lokale isrc liste",
+                    defaultValue = "false") boolean updateIsrc
+    )  {
+        var tidal = new TidalService(new TidalApiService(), daoProvider.getIsrcTidalIdDAO());
+
+        if (addTrackIsrc) {
+            log.info("Loading tracks to the isrc<->tidalId table");
+            var tracks = daoProvider.getTrackDAO().findAll();
+            tidal.addIsrcToIsrcTidalIds(tracks.stream().map(Track::isrc).toList());
+        }
+
+        if (updateIsrc) {
+            log.info("Updating enries in the isrc<->tidalId table with tidal track ids");
+            tidal.updateIsrcTidalIds();
+        }
+
+        var count = daoProvider.getIsrcTidalIdDAO().count();
+        var failed = daoProvider.getIsrcTidalIdDAO().countFailed();
+        var success = daoProvider.getIsrcTidalIdDAO().countSuccess();
+
+        log.info("Now {} tracks in isrc<->tidalId table, {} with tidalId and {} failed", count, success, failed);
+        return 0;
+    }
 
     @Command(name = "export", description = "Exportiert Spotify Daten")
     int export(
             @Option(names = {"-t", "--type"},
                     description = "Was exportieren: playlists, liked-songs, all",
-                    defaultValue = "all") String type,
+                    defaultValue = "liked-songs") String type,
             @Option(names = {"-o", "--output"},
                     description = "Output Datei",
                     defaultValue = "spotify-export.json") String output
@@ -53,13 +92,13 @@ public class Spotidal implements Callable<Integer> {
         try {
             switch (type.toLowerCase()) {
                 case "playlists":
-                    spotify.exportPlaylists(output);
                     break;
                 case "liked-songs":
-                    spotify.exportLikedSongs(output);
+                    var tracks = spotify.loadAllLikedSongs();
+                    var dataService = new LocalDataService(daoProvider.getTrackDAO());
+                    dataService.insertAllTracks(tracks);
                     break;
                 case "all":
-                    spotify.exportAll(output);
                     break;
                 default:
                     log.error("Unbekannter Type: {}", type);
@@ -71,54 +110,10 @@ public class Spotidal implements Callable<Integer> {
 
         } catch (Exception e) {
            log.error("Fehler beim Export", e);
-            return 1;
+           return 1;
         }
     }
 
-    @Command(name = "import", description = "Importiert Daten zu Tidal")
-    int importToTidal(
-            @Option(names = {"-i", "--input"},
-                    description = "Input JSON Datei",
-                    required = true) String input
-    ) {
-        log.info("Importiere zu Tidal von " + input + "...");
-
-        TidalService tidal = new TidalService();
-      //  MigrationService migration = new MigrationService(tidal);
-
-        try {
-        //    migration.importFromFile(input);
-            log.info("✓ Import erfolgreich");
-            return 0;
-
-        } catch (Exception e) {
-            log.error("Fehler beim Import", e);
-            return 1;
-        }
-    }
-
-    @Command(name = "migrate", description = "Direkte Migration von Spotify zu Tidal")
-    int migrate(
-            @Option(names = {"-t", "--type"},
-                    description = "Was migrieren: playlists, liked-songs, all",
-                    defaultValue = "all") String type
-    ) {
-        log.info("Starte Migration von Spotify zu Tidal...");
-
-        SpotifyService spotify = new SpotifyService();
-        TidalService tidal = new TidalService();
-      //  MigrationService migration = new MigrationService(spotify, tidal);
-
-        try {
-        //    migration.migrate(type);
-            log.info("✓ Migration erfolgreich");
-            return 0;
-
-        } catch (Exception e) {
-            log.error("Fehler bei der Migration", e);
-            return 1;
-        }
-    }
 
     @Command(name = "auth", description = "Authentifizierung einrichten")
     int auth(
@@ -154,7 +149,7 @@ public class Spotidal implements Callable<Integer> {
         return 0;
     }
 
-    static void main(String[] args) {
+    static void main(String[] args) throws SQLException {
         int exitCode = new CommandLine(new Spotidal()).execute(args);
         System.exit(exitCode);
     }
