@@ -6,6 +6,7 @@ import model.Playlist;
 import model.Track;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.model_objects.specification.*;
+import se.michaelthelin.spotify.model_objects.specification.User;
 import se.michaelthelin.spotify.requests.data.library.GetUsersSavedTracksRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
 import com.google.gson.Gson;
@@ -29,6 +30,11 @@ public class SpotifyService {
                 .build();
 
         this.gson = new GsonBuilder().setPrettyPrinting().create();
+    }
+
+    public String getCurrentUserId() throws Exception {
+        User user = spotifyApi.getCurrentUsersProfile().build().execute();
+        return user.getId();
     }
 
     public void exportLikedSongs(String outputFile) throws Exception {

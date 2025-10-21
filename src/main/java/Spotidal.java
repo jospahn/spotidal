@@ -1,7 +1,10 @@
 import auth.SpotifyAuthService;
 import auth.TidalAuthService;
 import dao.IsrcTidalIdDAO;
+import dao.MusicAccountDAO;
+import dao.UserDAO;
 import database.DaoProvider;
+import model.MusicAccount;
 import model.Track;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,17 +36,11 @@ public class Spotidal implements Callable<Integer> {
 
     @Command(name = "test")
     int test()  {
-        log.info("test called");
+        UserDAO userDAO = daoProvider.getUserDAO();
+        MusicAccountDAO musicAccountDAO = daoProvider.getMusicAccountDAO();
 
-        IsrcTidalIdDAO dao = daoProvider.getIsrcTidalIdDAO();
-        var count = dao.count();
-        log.info("Anzahl der Isrcs: {}", count);
-        var list = dao.findUpdateNeeded(20);
-
-        for (var isrcTidalId : list) {
-            log.info("{}", isrcTidalId);
-        }
-
+        userDAO.createTable();
+        musicAccountDAO.createTable();
         return 0;
     }
 

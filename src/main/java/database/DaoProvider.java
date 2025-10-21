@@ -1,7 +1,9 @@
 package database;
 
 import dao.IsrcTidalIdDAO;
+import dao.MusicAccountDAO;
 import dao.TrackDAO;
+import dao.UserDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,14 @@ public class DaoProvider {
 
     public IsrcTidalIdDAO getIsrcTidalIdDAO() {
         return new IsrcTidalIdDAOImpl(conn);
+    }
+
+    public UserDAO getUserDAO() {
+        return new UserDAOImpl(conn);
+    }
+
+    public MusicAccountDAO getMusicAccountDAO() {
+        return new MusicAccountDAOImpl(conn);
     }
 
 
