@@ -1,6 +1,0 @@
-# Kopiere diese Datei nach spotify.properties und fülle die Werte ein
-# Registriere deine App hier: https://developer.spotify.com/dashboard
-
-spotify.client.id=DEINE_CLIENT_ID
-spotify.client.secret=DEIN_CLIENT_SECRET
-spotify.redirect.uri=http://127.0.0.1:8888/callback
