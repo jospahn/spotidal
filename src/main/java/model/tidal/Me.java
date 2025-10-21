@@ -7,7 +7,16 @@ public record Me(
         String id,
 
         @SerializedName("type")
-        String type
+        String type,
+
+        @SerializedName("attributes")
+        Attributes attributes
+
 ) {
+    public record Attributes(
+            @SerializedName("username")
+            String username
+    ) {
+    }
 }
 

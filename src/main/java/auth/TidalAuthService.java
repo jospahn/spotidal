@@ -145,7 +145,7 @@ public class TidalAuthService {
                 "?response_type=code" +
                 "&client_id=" + authProperties.clientId() +
                 "&redirect_uri=" + URLEncoder.encode(authProperties.redirectUri().toString(), StandardCharsets.UTF_8) +
-                "&scope=" + AuthUtils.encodeScopes("collection.read", "collection.write", "playlists.read", "playlists.write") +
+                "&scope=" + AuthUtils.encodeScopes("collection.read", "collection.write", "playlists.read", "playlists.write", "user.read") +
                 "&code_challenge=" + codeChallenge +
                 "&code_challenge_method=S256");
     }

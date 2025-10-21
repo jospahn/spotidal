@@ -36,11 +36,13 @@ public class Spotidal implements Callable<Integer> {
 
     @Command(name = "test")
     int test()  {
-        UserDAO userDAO = daoProvider.getUserDAO();
-        MusicAccountDAO musicAccountDAO = daoProvider.getMusicAccountDAO();
-
-        userDAO.createTable();
-        musicAccountDAO.createTable();
+//        UserDAO userDAO = daoProvider.getUserDAO();
+//        MusicAccountDAO musicAccountDAO = daoProvider.getMusicAccountDAO();
+//
+//        userDAO.createTable();
+//        musicAccountDAO.createTable();
+        var tidal = new TidalApiService();
+        var user = tidal.resolveUserId();
         return 0;
     }
 
@@ -120,20 +122,26 @@ public class Spotidal implements Callable<Integer> {
     ) {
         log.info("Richte Authentifizierung ein für: {}", service);
 
-        var sas = new SpotifyAuthService();
-        var tas = new TidalAuthService();
 
         switch (service.toLowerCase()) {
-            case "spotify":
+            case "spotify" -> {
+                var sas = new SpotifyAuthService();
                 sas.authenticate();
-                break;
-            case "tidal":
+            }
+            case "tidal" -> {
+                var tas = new TidalAuthService();
                 tas.authenticate();
-                break;
-            case "both":
+            }
+            case "both" -> {
+                var sas = new SpotifyAuthService();
                 sas.authenticate();
+                var tas = new TidalAuthService();
                 tas.authenticate();
-                break;
+            }
+            default -> {
+                log.error("Unbekannter Service: {}", service);
+                return 1;
+            }
         }
 
         return 0;

@@ -52,6 +52,7 @@ public class TidalApiService {
 
         var response = sendRequest(request, new TypeToken<DataResponse<Me>>() {});
         response.ifPresent(r -> userId = r.data().id());
+        response.ifPresent(r -> log.info("Resolved Tidal user: {}", r.data()));
         return userId;
     }
 
