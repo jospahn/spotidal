@@ -1,6 +1,5 @@
 package spotidal.database;
 
-import spotidal.dao.AbstracDatabaseDAO;
 import spotidal.dao.DaoException;
 import spotidal.dao.IsrcTidalIdDAO;
 import spotidal.model.IsrcTidalId;
@@ -12,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class IsrcTidalIdDAOImpl extends AbstracDatabaseDAO implements IsrcTidalIdDAO {
-    private static final Logger log = LoggerFactory.getLogger(IsrcTidalIdDAOImpl.class);
-
+public class IsrcTidalIdDAOImpl extends AbstractDatabaseDAO implements IsrcTidalIdDAO {
     public IsrcTidalIdDAOImpl(Connection conn) {
         super(conn);
     }

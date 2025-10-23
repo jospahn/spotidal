@@ -11,12 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDAOImpl implements UserDAO {
-    private static final Logger log = LoggerFactory.getLogger(UserDAOImpl.class);
-    private final Connection conn;
-
+public class UserDAOImpl extends AbstractDatabaseDAO implements UserDAO {
     public UserDAOImpl(Connection conn) {
-        this.conn = conn;
+        super(conn);
     }
 
     @Override

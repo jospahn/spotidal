@@ -14,14 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class TrackDAOImpl implements TrackDAO {
-    private static final Logger log = LoggerFactory.getLogger(TrackDAOImpl.class);
-    private final Connection conn;
+public class TrackDAOImpl extends AbstractDatabaseDAO implements TrackDAO {
     private final Gson gson = new Gson();
     private final Type listType = new TypeToken<List<String>>() {}.getType();
 
     public TrackDAOImpl(Connection conn) {
-        this.conn = conn;
+        super(conn);
     }
 
     @Override

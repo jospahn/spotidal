@@ -12,12 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MusicAccountDAOImpl implements MusicAccountDAO {
-    private static final Logger log = LoggerFactory.getLogger(MusicAccountDAOImpl.class);
-    private final Connection conn;
+public class MusicAccountDAOImpl extends AbstractDatabaseDAO implements MusicAccountDAO {
 
     public MusicAccountDAOImpl(Connection conn) {
-        this.conn = conn;
+        super(conn);
     }
 
     @Override
