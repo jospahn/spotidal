@@ -15,6 +15,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.19.0")
     implementation("ch.qos.logback:logback-classic:1.5.19")
     implementation("org.duckdb:duckdb_jdbc:1.4.1.0")
+    implementation("com.googlecode.lanterna:lanterna:3.1.1")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

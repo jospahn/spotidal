@@ -1,6 +1,7 @@
 package auth;
 
-import model.Token;
+import spotidal.auth.TokenStorage;
+import spotidal.model.Token;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
