@@ -6,12 +6,10 @@ import java.util.Optional;
 
 public interface MusicAccountDAO {
     void insert(MusicAccount account);
-    Optional<MusicAccount> findById(int id);
-    List<MusicAccount> findByUserId(int userId);
+    Optional<MusicAccount> findById(Integer id);
+    List<MusicAccount> findByUserId(Integer userId);
     Optional<MusicAccount> findByPlatformAndExternalUserId(String platform, String externalUserId);
     List<MusicAccount> findAll();
     void delete(int id);
     void createTable();
 }
-
-

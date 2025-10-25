@@ -1,30 +1,39 @@
 package spotidal.service;
 
 import spotidal.ServiceRegistry;
+import spotidal.auth.AuthService;
 import spotidal.auth.SpotifyAuthService;
 import spotidal.auth.TidalAuthService;
 import spotidal.dao.UserDAO;
+import spotidal.database.DaoProvider;
+import spotidal.model.MusicAccount;
+import spotidal.model.MusicPlatform;
 
 public class UserService {
     private final SpotifyService spotifyService;
     private final TidalService tidalService;
-    private final UserDAO userDAO;
-//    private final SpotifyAuthService spotifyAuthService;
-    private final TidalAuthService tidalAuthService;
+    private final AuthService spotifyAuthService;
+    private final AuthService tidalAuthService;
+    private final DaoProvider daoProvider;
 
-    public UserService(ServiceRegistry context) {
-        this.spotifyService = context.getSpotifyService();
-        this.tidalService = context.getTidalService();
-        this.userDAO = context.getDaoProvider().getUserDAO();
-//        this.spotifyAuthService = new SpotifyAuthService();
-        this.tidalAuthService = new TidalAuthService();
+    public UserService(ServiceRegistry registry) {
+        this.daoProvider = registry.getDaoProvider();
+        this.spotifyService = registry.getSpotifyService();
+        this.tidalService = registry.getTidalService();
+        this.spotifyAuthService = registry.getSpotifyAuthService();
+        this.tidalAuthService = registry.getTidalAuthService();
+    }
+
+    public void authenticateSpotify() {
+        spotifyAuthService.authenticate();
     }
 
     public void fetchAndStoreSpotifyUser() {
-        // Authentifizierung sicherstellen
-//        spotifyAuthService.authenticate();
+
         try {
             String userId = spotifyService.getCurrentUserId();
+            MusicAccount account = new MusicAccount(0, 0, MusicPlatform.SPOTIFY, userId, "");
+            daoProvider.getMusicAccountDAO().insert(account);
 //            User user = new User(userId, "spotify");
 //            userDAO.save(user);
         } catch (Exception e) {

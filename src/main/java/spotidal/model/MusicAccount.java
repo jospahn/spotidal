@@ -1,8 +1,8 @@
 package spotidal.model;
 
 public record MusicAccount(
-    int id,
-    int userId,
+    Integer id,
+    Integer userId,
     MusicPlatform platform,
     String externalUserId,
     String displayName

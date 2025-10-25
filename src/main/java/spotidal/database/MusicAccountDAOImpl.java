@@ -4,8 +4,6 @@ import spotidal.dao.MusicAccountDAO;
 import spotidal.dao.DaoException;
 import spotidal.model.MusicAccount;
 import spotidal.model.MusicPlatform;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -22,7 +20,11 @@ public class MusicAccountDAOImpl extends AbstractDatabaseDAO implements MusicAcc
     public void insert(MusicAccount account) {
         String sql = "INSERT INTO MusicAccount (user_id, platform, external_user_id, display_name) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, account.userId());
+            if (account.userId() == null) {
+                stmt.setNull(1, java.sql.Types.INTEGER);
+            } else {
+                stmt.setInt(1, account.userId());
+            }
             stmt.setString(2, account.platform().name()); // Enum als String speichern
             stmt.setString(3, account.externalUserId());
             stmt.setString(4, account.displayName());
@@ -34,7 +36,8 @@ public class MusicAccountDAOImpl extends AbstractDatabaseDAO implements MusicAcc
     }
 
     @Override
-    public Optional<MusicAccount> findById(int id) {
+    public Optional<MusicAccount> findById(Integer id) {
+        if (id == null) return Optional.empty();
         String sql = "SELECT * FROM MusicAccount WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -51,9 +54,10 @@ public class MusicAccountDAOImpl extends AbstractDatabaseDAO implements MusicAcc
     }
 
     @Override
-    public List<MusicAccount> findByUserId(int userId) {
-        String sql = "SELECT * FROM MusicAccount WHERE user_id = ?";
+    public List<MusicAccount> findByUserId(Integer userId) {
         List<MusicAccount> accounts = new ArrayList<>();
+        if (userId == null) return accounts;
+        String sql = "SELECT * FROM MusicAccount WHERE user_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -119,11 +123,11 @@ public class MusicAccountDAOImpl extends AbstractDatabaseDAO implements MusicAcc
         String createSql = """
             CREATE TABLE IF NOT EXISTS MusicAccount (
                 id INTEGER PRIMARY KEY,
-                user_id INTEGER NOT NULL,
+                user_id INTEGER,
                 platform TEXT NOT NULL,
                 external_user_id TEXT NOT NULL,
                 display_name TEXT,
-                FOREIGN KEY (user_id) REFERENCES User(id),
+//                FOREIGN KEY (user_id) REFERENCES User(id),
                 UNIQUE(platform, external_user_id)
             );
         """;
@@ -137,7 +141,7 @@ public class MusicAccountDAOImpl extends AbstractDatabaseDAO implements MusicAcc
 
     private MusicAccount mapRowToMusicAccount(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
-        int userId = rs.getInt("user_id");
+        Integer userId = rs.getObject("user_id") == null ? null : rs.getInt("user_id");
         String platformStr = rs.getString("platform");
         MusicPlatform platform = MusicPlatform.valueOf(platformStr); // String zu Enum
         String externalUserId = rs.getString("external_user_id");
