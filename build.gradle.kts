@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("application")
 }
 
 group = "com.musicmigration"
@@ -24,4 +25,22 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+application {
+    // Ersetze dies durch deinen tatsächlichen Main-Class Pfad, z.B.:
+    // mainClass.set("spotidal.Spotidal")
+    mainClass.set("spotidal.Spotidal")
+}
+
+tasks.jar {
+    manifest {
+        attributes(
+            "Main-Class" to application.mainClass.get()
+        )
+    }
+    from({
+        configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }
+    })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
